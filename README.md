@@ -25,59 +25,64 @@ To Implement ELGAMAL ALGORITHM
 
 ## Program:
 ```
-import random
+#include <stdio.h>
+#include <math.h>
 
-def mod_exp(base, exp, mod):
-    result = 1
-    while exp > 0:
-        if exp % 2 == 1:
-            result = (result * base) % mod
-        base = (base * base) % mod
-        exp //= 2
-    return result
+// Function to compute modular exponentiation (base^exp % mod)
+long long int modExp(long long int base, long long int exp, long long int mod) {
+    long long int result = 1;
+    while (exp > 0) {
+        if (exp % 2 == 1) {
+            result = (result * base) % mod;
+        }
+        base = (base * base) % mod;
+        exp = exp / 2;
+    }
+    return result;
+}
 
-def elgamal_keygen(p, g):
-    x = random.randint(2, p-2)  # Private key (x)
-    y = mod_exp(g, x, p)  # Public key (y)
-    return (p, g, y), x  # Return public key and private key
+int main() {
+    long long int p, g, privateKeyA, publicKeyA;
+    long long int k, message, c1, c2, decryptedMessage;
 
-def elgamal_encrypt(public_key, m, p):
-    (p, g, y) = public_key
-    k = random.randint(2, p-2)  # Random value
-    c1 = mod_exp(g, k, p)  # c1 = g^k mod p
-    c2 = (m * mod_exp(y, k, p)) % p  # c2 = (m * y^k) mod p
-    return (c1, c2)
+    // Step 1: Input a large prime number (p) and a generator (g)
+    printf("Enter a large prime number (p): ");
+    scanf("%lld", &p);
+    printf("Enter a primitive root or generator (g): ");
+    scanf("%lld", &g);
 
-def elgamal_decrypt(private_key, ciphertext, p):
-    (c1, c2) = ciphertext
-    x = private_key
-    s = mod_exp(c1, x, p)  # Compute shared secret (s = c1^x mod p)
-    s_inv = mod_exp(s, p-2, p)  # Modular inverse of s (s^-1 mod p)
-    m = (c2 * s_inv) % p  # Decrypt message (m = (c2 * s^-1) mod p)
-    return m
+    // Step 2: Alice inputs her private key
+    printf("Enter private key: ");
+    scanf("%lld", &privateKeyA);
 
-def main():
-    p = int(input("Enter a prime number p: "))
-    g = int(input("Enter a primitive root g: "))
-    
-    public_key, private_key = elgamal_keygen(p, g)
-    print(f"Public Key: {public_key}")
-    print(f"Private Key: {private_key}")
+    // Step 3: Compute Alice's public key (public_key = g^privateKeyA mod p)
+    publicKeyA = modExp(g, privateKeyA, p);
+    printf("public key: %lld\n", publicKeyA);
 
-    m = int(input("Enter a message (as a number): "))
-    
-    ciphertext = elgamal_encrypt(public_key, m, p)
-    print(f"Ciphertext: {ciphertext}")
-    
-    decrypted_message = elgamal_decrypt(private_key, ciphertext, p)
-    print(f"Decrypted Message: {decrypted_message}")
+    // Step 4: Bob inputs the message to be encrypted and selects a random k
+    printf("Enter the message to encrypt (as a number): ");
+    scanf("%lld", &message);
+    printf("Enter a random number k: ");
+    scanf("%lld", &k);
 
-main()
+    // Step 5: Bob computes ciphertext (c1 = g^k mod p, c2 = (message * publicKeyA^k) mod p)
+    c1 = modExp(g, k, p);
+    c2 = (message * modExp(publicKeyA, k, p)) % p;
+    printf("Encrypted message (c1, c2): (%lld, %lld)\n", c1, c2);
+
+    // Step 6: Alice decrypts the message (decryptedMessage = (c2 * c1^(p-1-privateKeyA)) mod p)
+    decryptedMessage = (c2 * modExp(c1, p - 1 - privateKeyA, p)) % p;
+    printf("Decrypted message: %lld\n", decryptedMessage);
+
+    return 0;
+}
 ```
+
+
 
 ## Output:
 
-![image](https://github.com/user-attachments/assets/b6ae939c-1ef5-4c53-afec-62b663e0bbda)
+![Screenshot 2024-11-14 082645](https://github.com/user-attachments/assets/d1e04920-e2ff-4ead-9cb5-23b31daaf70d)
 
 
 ## Result:
